@@ -22,3 +22,12 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Personal data and test files
+file2upload/
+*.mjs
+verify-totals.mjs
+debug-parsing.mjs
+inspect-excel.mjs
+test-parser.mjs
+test-raw-true.mjs
