@@ -3,6 +3,7 @@ import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recha
 interface DataPoint {
     name: string;
     value: number;
+    [key: string]: string | number;
 }
 
 interface ExpensesPieChartProps {
@@ -15,12 +16,14 @@ const COLORS = [
 ];
 
 export function ExpensesPieChart({ data }: ExpensesPieChartProps) {
-    // Filter out zero values and take top 8 + others
     const processedData = data.filter(d => d.value > 0);
 
     return (
         <div className="w-full h-[300px] bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
-            <h3 className="text-lg font-semibold text-gray-700 mb-4">Spending by Category</h3>
+            <h3 className="text-lg font-semibold text-gray-700 mb-4">
+                Spending by Category
+            </h3>
+
             <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                     <Pie
@@ -32,15 +35,33 @@ export function ExpensesPieChart({ data }: ExpensesPieChartProps) {
                         paddingAngle={5}
                         dataKey="value"
                     >
-                        {processedData.map((entry, index) => (
-                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                        {processedData.map((_, index) => (
+                            <Cell
+                                key={`cell-${index}`}
+                                fill={COLORS[index % COLORS.length]}
+                            />
                         ))}
                     </Pie>
+
                     <Tooltip
-                        formatter={(value: number) => `₦${value.toLocaleString()}`}
-                        contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                        formatter={(value) =>
+                            typeof value === 'number'
+                                ? `₦${value.toLocaleString()}`
+                                : ''
+                        }
+                        contentStyle={{
+                            borderRadius: '8px',
+                            border: 'none',
+                            boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'
+                        }}
                     />
-                    <Legend layout="vertical" verticalAlign="middle" align="right" wrapperStyle={{ fontSize: '12px' }} />
+
+                    <Legend
+                        layout="vertical"
+                        verticalAlign="middle"
+                        align="right"
+                        wrapperStyle={{ fontSize: '12px' }}
+                    />
                 </PieChart>
             </ResponsiveContainer>
         </div>

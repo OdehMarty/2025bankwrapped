@@ -31,7 +31,10 @@ export function TrendLineChart({ data }: TrendLineChartProps) {
                         tickFormatter={(value) => `${(value / 1000).toFixed(0)}k`}
                     />
                     <Tooltip
-                        formatter={(value: number) => `₦${value.toLocaleString()}`}
+                        formatter={(value) =>
+                            typeof value === 'number' ? `₦${value.toLocaleString()}` : ''
+                        }
+
                         contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
                     />
                     <Legend />
