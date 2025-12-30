@@ -11,9 +11,12 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Feedback modal state
+  // Feedback modal
   const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
   const [feedbackText, setFeedbackText] = useState("");
+
+  // Notification state
+  const [notification, setNotification] = useState<string | null>(null);
 
   const handleFileSelect = async (file: File) => {
     setLoading(true);
@@ -24,7 +27,6 @@ function App() {
         throw new Error("No valid transactions found in file.");
       }
       const processed = processTransactions(rawTransactions);
-      // Artificial delay for better UX
       await new Promise(resolve => setTimeout(resolve, 800));
       setData(processed);
     } catch (err) {
@@ -40,8 +42,45 @@ function App() {
     setError(null);
   };
 
+  const handleSubmitFeedback = async () => {
+    if (!feedbackText.trim()) {
+      setNotification("Please enter feedback.");
+      return;
+    }
+
+    try {
+      const response = await fetch("https://script.google.com/macros/s/AKfycbx_7u6C0BWPM1WxRlAE2qZx86BgoGgyAGAdqat5eiBRt2dqEcZqv94ufJawoPOr0iBxhw/exec", {
+        method: "POST",
+        body: JSON.stringify({ feedback: feedbackText }),
+        headers: { "Content-Type": "application/json" },
+      });
+
+      const result = await response.json();
+      if (result.result === "success") {
+        setNotification("Thanks! Your feedback was received.");
+        setFeedbackText("");
+        setIsFeedbackOpen(false);
+      } else {
+        setNotification("Failed to submit feedback. Try again later.");
+      }
+    } catch (err) {
+      console.error(err);
+      setNotification("Failed to submit feedback. Try again later.");
+    }
+
+    // Auto-hide notification after 3 seconds
+    setTimeout(() => setNotification(null), 3000);
+  };
+
   return (
     <div className="min-h-screen bg-white">
+      {/* Notification Toast */}
+      {notification && (
+        <div className="fixed top-4 right-4 bg-blue-600 text-white px-4 py-2 rounded shadow-lg z-50">
+          {notification}
+        </div>
+      )}
+
       {!data ? (
         <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-gradient-to-b from-blue-50 to-white">
           <div className="text-center mb-10 space-y-2">
@@ -106,13 +145,7 @@ function App() {
                 Cancel
               </button>
               <button
-                onClick={() => {
-                  if (!feedbackText.trim()) return alert("Please enter feedback.");
-                  console.log("User feedback:", feedbackText);
-                  alert("Thanks for your feedback!");
-                  setFeedbackText("");
-                  setIsFeedbackOpen(false);
-                }}
+                onClick={handleSubmitFeedback}
                 className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
               >
                 Submit
