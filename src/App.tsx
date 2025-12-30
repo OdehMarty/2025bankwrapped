@@ -11,6 +11,10 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Feedback modal state
+  const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
+  const [feedbackText, setFeedbackText] = useState("");
+
   const handleFileSelect = async (file: File) => {
     setLoading(true);
     setError(null);
@@ -66,13 +70,56 @@ function App() {
             )}
           </div>
 
-          <div className="mt-12 text-center text-xs text-gray-400">
+          <div className="mt-12 text-center text-xs text-gray-400 space-y-2">
             <p>Your data never leaves your device.</p>
             <p>Supports .csv, .xls, .xlsx, .json</p>
+
+            <button
+              onClick={() => setIsFeedbackOpen(true)}
+              className="mt-2 text-blue-500 hover:underline text-sm"
+            >
+              Encountered a problem? Give Feedback
+            </button>
           </div>
         </div>
       ) : (
         <Dashboard transactions={data} onReset={handleReset} />
+      )}
+
+      {/* Feedback Modal */}
+      {isFeedbackOpen && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className="bg-white rounded-xl shadow-lg w-11/12 max-w-md p-6 relative">
+            <h2 className="text-lg font-semibold mb-4">Report an issue</h2>
+            <textarea
+              value={feedbackText}
+              onChange={(e) => setFeedbackText(e.target.value)}
+              rows={4}
+              className="w-full border border-gray-300 rounded-md p-2 mb-4"
+              placeholder="Describe the problem you encountered..."
+            />
+            <div className="flex justify-end gap-2">
+              <button
+                onClick={() => setIsFeedbackOpen(false)}
+                className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  if (!feedbackText.trim()) return alert("Please enter feedback.");
+                  console.log("User feedback:", feedbackText);
+                  alert("Thanks for your feedback!");
+                  setFeedbackText("");
+                  setIsFeedbackOpen(false);
+                }}
+                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+              >
+                Submit
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
