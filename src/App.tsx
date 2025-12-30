@@ -5,74 +5,13 @@ import { parseFile } from './utils/parser';
 import { processTransactions } from './utils/classifier';
 import type { ProcessedTransaction } from './utils/analytics';
 import { Loader2 } from 'lucide-react';
-
-function FeedbackForm() {
-  const [email, setEmail] = useState('');
-  const [message, setMessage] = useState('');
-  const [notification, setNotification] = useState('');
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    const body = { email, message };
-
-    try {
-      const res = await fetch('https://formspree.io/f/mregvvvj', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
-      });
-
-      if (res.ok) {
-        setNotification('Thanks! Your feedback was received.');
-        setEmail('');
-        setMessage('');
-      } else {
-        setNotification('Failed to submit feedback. Try again later.');
-      }
-    } catch (err) {
-      console.error(err);
-      setNotification('Failed to submit feedback. Try again later.');
-    }
-
-    setTimeout(() => setNotification(''), 4000);
-  };
-
-  return (
-    <div className="mt-4 p-4 border border-gray-200 rounded-lg bg-gray-50">
-      <form onSubmit={handleSubmit} className="space-y-3">
-        <input
-          type="email"
-          required
-          placeholder="Your email"
-          className="w-full border rounded p-2"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-        <textarea
-          placeholder="Your feedback"
-          className="w-full border rounded p-2"
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
-        />
-        <button
-          type="submit"
-          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-        >
-          Submit Feedback
-        </button>
-      </form>
-      {notification && (
-        <div className="mt-2 text-sm text-blue-600">{notification}</div>
-      )}
-    </div>
-  );
-}
+import { FeedbackModal } from './components/FeedbackModal';
 
 function App() {
   const [data, setData] = useState<ProcessedTransaction[] | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleFileSelect = async (file: File) => {
     setLoading(true);
@@ -128,13 +67,21 @@ function App() {
             )}
           </div>
 
-          <div className="mt-12 text-center text-xs text-gray-400">
+          <div className="mt-6 text-center text-xs text-gray-400">
             <p>Your data never leaves your device.</p>
             <p>Supports .csv, .xls, .xlsx, .json</p>
-
-            {/* Feedback form */}
-            <FeedbackForm />
+            <button
+              onClick={() => setIsModalOpen(true)}
+              className="mt-2 text-blue-500 underline text-sm hover:text-blue-700"
+            >
+              Encountered a problem? Give Feedback
+            </button>
           </div>
+
+          <FeedbackModal
+            isOpen={isModalOpen}
+            onClose={() => setIsModalOpen(false)}
+          />
         </div>
       ) : (
         <Dashboard transactions={data} onReset={handleReset} />
